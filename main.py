@@ -80,14 +80,16 @@ def run():
         await ctx.send("Quoted.")
 
 
-    @bot.command()
+    @bot.command() # add catch for if member does not exist --> member error ON function call
     async def get_quotes(ctx, member:discord.Member):
         async with aiosqlite.connect("main.db") as db:
             async with db.cursor() as cursor:
                 await cursor.execute("SELECT * FROM quotes WHERE author = ?", (member.name,))
                 data = await cursor.fetchall()
                 if data:
-                    print(data)
+                    for quote in data:
+                        # print(str(quote.content) + " : " + str(quote.author))
+                        await ctx.send(quote[2] + " : " + quote[3])
                 else:
                     print("no quotes by " + str(member.name))
             await db.commit()
