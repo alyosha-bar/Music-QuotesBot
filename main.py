@@ -80,6 +80,7 @@ def run():
         await ctx.send("Quoted.")
 
 
+    # needs some discord message styling so that its not just plain text
     @bot.command() # add catch for if member does not exist --> member error ON function call
     async def get_quotes(ctx, member:discord.Member):
         async with aiosqlite.connect("main.db") as db:
@@ -89,14 +90,13 @@ def run():
                 if data:
                     for quote in data:
                         # print(str(quote.content) + " : " + str(quote.author))
-                        await ctx.send(quote[2] + " : " + quote[3])
+                        await ctx.send("> **" + quote[2] + "** : *" + quote[3] + "*")
                 else:
-                    print("no quotes by " + str(member.name))
+                    await ctx.send("no quotes by " + str(member.name))
             await db.commit()
         
 
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
-    # print(settings.DISCORD_API_SECRET)
 
 
 if __name__ == '__main__':
