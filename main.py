@@ -80,6 +80,63 @@ def run():
         await ctx.send("Quoted.")
 
 
+    # needs changes to give niced error handling
+    @bot.command()
+    async def join(ctx):
+        channel = ctx.author.voice.channel
+        await channel.connect()
+
+
+    # disconnect / leave
+    @bot.command()
+    async def leave(ctx):
+        await ctx.voice_client.disconnect()
+
+    # play
+    @bot.command()
+    async def play(ctx, file_path):
+        voice_channel = ctx.author.voice.channel
+        voice_client = ctx.voice_client
+
+        if voice_client is None:
+            await voice_channel.connect()
+            voice_client = ctx.voice_client
+
+        source = discord.FFmpegPCMAudio(file_path)
+        voice_client.play(source)
+            
+
+
+    # pause
+    @bot.command()
+    async def pause(ctx):
+        voice_channel = ctx.author.voice.channel
+        voice_client = ctx.voice_client
+
+        if voice_client is None:
+            await voice_channel.connect()
+            voice_client = ctx.voice_client
+
+        if voice_client.is_playing():
+            voice_client.pause()
+        else:
+            await ctx.send("Play smth to pause")
+
+
+    @bot.command()
+    async def unpause(ctx):
+        voice_channel = ctx.author.voice.channel
+        voice_client = ctx.voice_client
+
+        if voice_client is None:
+            await voice_channel.connect()
+            voice_client = ctx.voice_client
+
+        if voice_client.is_playing() == False:
+            voice_client.resume()
+        else:
+            await ctx.send("Nothing was playing.")
+
     # needs some discord message styling so that its not just plain text
     @bot.command() # add catch for if member does not exist --> member error ON function call
     async def get_quotes(ctx, member:discord.Member):
