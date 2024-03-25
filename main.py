@@ -1,9 +1,28 @@
 import settings
 
+import os
+import asyncio
+
+# discord imports
 import discord
 from discord.ext import commands
 
+# sqlite imports
 import aiosqlite
+
+# music api imports
+import pafy
+import youtube_dl
+
+
+voice_clients = {}
+
+yt_dl_opts = {'format': 'bestaudio/best'}
+ytdl = youtube_dl.YoutubeDL(yt_dl_opts)
+
+ffmpeg_options = {'options': '-vn'}
+
+
 
 logger = settings.logging.getLogger("bot")
 
@@ -59,12 +78,14 @@ def run():
             replied_message = await message.channel.fetch_message(message.reference.message_id)
             # await message.channel.send(f"Original Message: {replied_message.content}")
             
+            # save to database
             async with aiosqlite.connect("main.db") as db:
                 async with db.cursor() as cursor:
                     await cursor.execute("INSERT INTO quotes (guild, content, author) VALUES (?, ?,  ?)",
                                          (message.guild.id, replied_message.content, replied_message.author.name,))
                 await db.commit()
-            # save to database
+            
+            # debug messages
             print(replied_message.id)
             print("Quoted Text: " + replied_message.content)
             print(replied_message.author)
@@ -92,18 +113,23 @@ def run():
     async def leave(ctx):
         await ctx.voice_client.disconnect()
 
-    # play
+
+
     @bot.command()
-    async def play(ctx, file_path):
+    async def play(ctx, video_url):
         voice_channel = ctx.author.voice.channel
         voice_client = ctx.voice_client
 
-        if voice_client is None:
-            await voice_channel.connect()
-            voice_client = ctx.voice_client
+        loop = asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(video_url, download=False))
 
-        source = discord.FFmpegPCMAudio(file_path)
-        voice_client.play(source)
+        song = data['url']
+        player = discord.FFmpegPCMAudio(song, **ffmpeg_options)
+        voice_client.play(player)
+
+        del data
+
+
             
 
 
