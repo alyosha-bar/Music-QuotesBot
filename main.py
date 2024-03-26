@@ -52,6 +52,19 @@ def run():
     
     @bot.command()
     async def helpme(ctx):
+
+        all_commands = {
+            "!ping": "replies with pong",
+            "!helpme": "this.",
+            "!quote": "Reply to a message with this to save the quote.",
+            "!get_qoutes": "Gets quotes by member.",
+            "!join": "Make Bot join voice chat.",
+            "!leave": "Make bot leave voice chat.",
+            "!play": "Plays song from linked youtube URL.",
+            "!pause": "Pauses the song.",
+            "!unpause": "Unpauses the song."
+        }
+
         await ctx.send('Help yourself you lazy shit')
 
 
@@ -102,10 +115,10 @@ def run():
 
 
     # needs changes to give niced error handling
-    @bot.command()
-    async def join(ctx):
-        channel = ctx.author.voice.channel
-        await channel.connect()
+    # @bot.command()
+    # async def join(ctx):
+    #     channel = ctx.author.voice.channel
+    #     await channel.connect()
 
 
     # disconnect / leave
@@ -114,10 +127,15 @@ def run():
         await ctx.voice_client.disconnect()
 
 
-
+    # play command
     @bot.command()
     async def play(ctx, video_url):
+
+        # function needs to include !join
         voice_channel = ctx.author.voice.channel
+        await voice_channel.connect()
+
+        # function needs to include automatic queueing
         voice_client = ctx.voice_client
 
         loop = asyncio.get_event_loop()
@@ -128,9 +146,6 @@ def run():
         voice_client.play(player)
 
         del data
-
-
-            
 
 
     # pause
@@ -149,6 +164,7 @@ def run():
             await ctx.send("Play smth to pause")
 
 
+    # resume
     @bot.command()
     async def unpause(ctx):
         voice_channel = ctx.author.voice.channel
