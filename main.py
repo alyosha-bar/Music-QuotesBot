@@ -123,7 +123,7 @@ def run():
 
     # disconnect / leave
     @bot.command()
-    async def leave(ctx):
+    async def stop(ctx):
         await ctx.voice_client.disconnect()
 
 
@@ -137,6 +137,10 @@ def run():
 
         # function needs to include automatic queueing
         voice_client = ctx.voice_client
+        
+        # if voice_client.is_playing():
+        #     await ctx.send("Already playing a song")
+        #     return
 
         loop = asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(video_url, download=False))
